@@ -50,7 +50,9 @@ static inline void ngage_lcd_program_init(PIO pio, uint sm, uint offset,
 {
     uint i;
     for (i = 0; i < 8; ++i)
+    {
         pio_gpio_init(pio, data_base_pin + i);
+    }
     pio_gpio_init(pio, clk_pin);
 
     pio_sm_set_consecutive_pindirs(pio, sm, data_base_pin, 8, false);

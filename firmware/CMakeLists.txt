@@ -12,12 +12,12 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
-set(PICO_BOARD pico CACHE STRING "Board type")
+set(PICO_BOARD pico2 CACHE STRING "Board type")
 
 cmake_minimum_required(VERSION 3.12)
 include(pico_sdk_import.cmake)
 
-project(ngage-display-converter C CXX ASM)
+project(N-Vision C CXX ASM)
 
 set(CMAKE_C_STANDARD   11)
 set(CMAKE_CXX_STANDARD 17)
@@ -39,7 +39,6 @@ add_executable(${PROJECT_NAME}
 pico_generate_pio_header(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/src/ngage_lcd.pio)
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall)
-target_compile_definitions(PICO_COPY_TO_RAM=1)
 
 target_link_libraries(${PROJECT_NAME}
   pico_stdlib
