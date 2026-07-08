@@ -41,8 +41,7 @@
  * named LCD bus signal.
  * ====================================================================== */
 #define CH_LCDCLK 9  /* CSV column wired to LCDCLK                        */
-#define CH_LATCH  1  /* CSV column wired to LATCH                         */
-#define CH_LCDM   11 /* CSV column wired to LCDM   (bus bit 7, mode flag) */
+#define CH_LCDM   1 /* CSV column wired to LCDM   (bus bit 7, mode flag) */
 #define CH_LCDDa6 12 /* CSV column wired to LCDDa6 (bus bit 6)            */
 #define CH_LCDDa5 13 /* CSV column wired to LCDDa5 (bus bit 5)            */
 #define CH_LCDDa4 6  /* CSV column wired to LCDDa4 (bus bit 4)            */
@@ -213,8 +212,22 @@ static int parse_csv_row(char *line, int ch[MAX_CHANNELS])
         return -1;
 
     int count = 0;
-    while (count < MAX_CHANNELS && (tok = strtok(NULL, ", \t\r\n")) != NULL)
-        ch[count++] = atoi(tok);
+    while (count < MAX_CHANNELS && (tok = strtok(NULL, ",")) != NULL)
+    {
+        /* Skip leading whitespace */
+        while (*tok && (*tok == ' ' || *tok == '\t'))
+            tok++;
+        /* Stop at trailing whitespace */
+        char *end = tok;
+        while (*end && *end != ' ' && *end != '\t' && *end != '\r' && *end != '\n')
+            end++;
+        *end = '\0';
+
+        if (*tok)
+            ch[count++] = atoi(tok);
+        else
+            ch[count++] = 0;  /* Ensure we capture all columns, even empty ones */
+    }
 
     return count;
 }
@@ -275,9 +288,10 @@ int main(void)
     while (fgets(line, sizeof(line), fp))
     {
         memset(ch, 0, sizeof(ch));
-        if (parse_csv_row(line, ch) <= 0)
+        int parsed = parse_csv_row(line, ch);
+        if (parsed < 0)
         {
-            continue;
+            continue;  /* Skip comment lines and headers */
         }
 
         /* Sample the bus only on the rising edge of LCDCLK */
@@ -294,7 +308,7 @@ int main(void)
         if ((b & LCDM) == 0)
         {
             /* Command word: LCDM = 0, flush any pending pixel data first */
-            if (index > 0)
+            if (index > 0 && imdata_len > 0)
             {
                 decode_and_draw(imdata, imdata_len, target_data[0]);
                 imageindex++;
