@@ -25,9 +25,9 @@
  * LCD bus signals - every bit position carries the name of its physical pin.
  *
  * Raw stream byte layout (MSB first):
- *   bit 7 : LCDM       – mode:  1 = pixel-data word, 0 = command word
- *   bit 6 : LCDFSP     – frame start pulse       (pixel-data words only)
- *   bit 5 : LCDDa5     – display data bus, bit 5 (pixel-data words only)
+ *   bit 7 : LCDM       – mode: 1 = pixel-data word, 0 = command word
+ *   bit 6 : LCDDa6     – display data bus, bit 6
+ *   bit 5 : LCDDa5     – display data bus, bit 5
  *   bit 4 : LCDDa4     – display data bus, bit 4
  *   bit 3 : LCDDa3     – display data bus, bit 3
  *   bit 2 : LCDDa2     – display data bus, bit 2
@@ -39,7 +39,7 @@
  *   LCDDISPClk 0x5C – display pixel clock (followed by pixel data words)
  * ----------------------------------------------------------------------- */
 #define LCDM   0x80u /* bit 7 */
-#define LCDFSP 0x40u /* bit 6 */
+#define LCDDa6 0x40u /* bit 6 */
 #define LCDDa5 0x20u /* bit 5 */
 #define LCDDa4 0x10u /* bit 4 */
 #define LCDDa3 0x08u /* bit 3 */
@@ -51,7 +51,7 @@
 #define LCDDISPClk 0x5Cu /* display pixel-clock strobe (LCDM = 0) */
 
 /* Composite masks used in nibble decode */
-#define LCD_PAYLOAD_MASK (LCDFSP | LCDDa5 | LCDDa4 | LCDDa3 | LCDDa2 | LCDDa1 | LCDDa0) /* bits 6-0 */
+#define LCD_PAYLOAD_MASK (LCDDa6 | LCDDa5 | LCDDa4 | LCDDa3 | LCDDa2 | LCDDa1 | LCDDa0) /* bits 6-0 */
 #define NIB_DELTA_BIT    3                                                              /* LCDDa3 position within a low nibble */
 #define NIB_DATA_MASK    0x7                                                            /* bits 2-0: color-data pins per nibble  */
 
@@ -61,7 +61,7 @@ static uint8_t framebuf[HEIGHT * WIDTH * 3];
  * Decode nibble-encoded pixel data and write it into framebuf.
  *
  * Each data word (LCDM = 1) expands to two nibbles:
- *   high nibble (bits 7-4): [LCDM(1) | LCDFSP | LCDDa5 | LCDDa4]
+ *   high nibble (bits 7-4): [LCDM(1) | LCDDa6 | LCDDa5 | LCDDa4]
  *   low  nibble (bits 3-0): [LCDDa3  | LCDDa2 | LCDDa1 | LCDDa0]
  *
  * Three consecutive nibbles encode one RGB pixel (n0 = R, n1 = G, n2 = B).
@@ -82,7 +82,7 @@ static void decode_and_draw(const uint8_t *imdata, size_t imdata_len, int y_offs
 
     for (size_t k = 0; k < imdata_len; k++)
     {
-        nib[k * 2 + 0] = (imdata[k] >> 4) & 0xf; /* high: [LCDM | LCDFSP | LCDDa5 | LCDDa4] */
+        nib[k * 2 + 0] = (imdata[k] >> 4) & 0xf; /* high: [LCDM | LCDDa6 | LCDDa5 | LCDDa4] */
         nib[k * 2 + 1] = imdata[k] & 0xf;        /* low:  [LCDDa3 | LCDDa2 | LCDDa1 | LCDDa0] */
     }
 
@@ -202,7 +202,7 @@ int main(void)
             if (state == LCDLLClk)
             {
                 if (index < 4)
-                    target_data[index] = b & LCD_PAYLOAD_MASK; /* [LCDFSP | LCDDa5:LCDDa0] */
+                    target_data[index] = b & LCD_PAYLOAD_MASK; /* [LCDDa6 | LCDDa5:LCDDa0] */
                 index++;
             }
             else if (state == LCDDISPClk)
