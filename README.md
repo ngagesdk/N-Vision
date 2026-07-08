@@ -23,12 +23,23 @@ DVI, making it suitable for recording, streaming, or development purposes.
 
 ## Features (Planned)
 
-* Non-destructive installation using a custom flexible PCB
-* Real-time LCD signal capture
-* Display decoding on a Raspberry Pi Pico 2
-* Digital DVI video output
-* Open-source hardware and firmware
-* Designed specifically for the Nokia N-Gage Classic
+- Non-destructive installation using a custom flexible PCB
+- Real-time LCD signal capture
+- Display decoding on a Raspberry Pi Pico 2
+- Digital DVI video output
+- Open-source hardware and firmware
+- Designed specifically for the Nokia N-Gage Classic
+
+## Project Structure
+
+- [decoder/](decoder/):
+  Proof-of-concept decoder that converts a binary signal trace file into a set of images.
+- [firmware/](firmware/):
+  Firmware for the Raspberry Pi Pico 2 that captures and decodes the N-Gage display
+  signals in real time.
+- [hardware/](hardware/):
+  Hardware design files for the custom flexible PCB that interfaces with the N-Gage
+  display.
 
 ## Project Status
 
@@ -51,18 +62,18 @@ a pull request.
 
 ## Goals
 
-* Preserve the ability to capture authentic Nokia N-Gage gameplay.
-* Provide an affordable and reproducible alternative to the original Nokia capture
+- Preserve the ability to capture authentic Nokia N-Gage gameplay.
+- Provide an affordable and reproducible alternative to the original Nokia capture
   hardware.
-* Document the N-Gage display interface for future preservation efforts.
-* Build an open platform that the community can improve and extend.
+- Document the N-Gage display interface for future preservation efforts.
+- Build an open platform that the community can improve and extend.
 
 ## License
 
 N-Vision is released under a dual-license model:
 
-* **Software** (firmware, utilities, and related source code) is licensed under the
+- **Software** (firmware, utilities, and related source code) is licensed under the
   [**MIT License**](firmware/LICENSE.md).
-* **Hardware** (schematics, PCB layouts, mechanical designs, and other hardware design
+- **Hardware** (schematics, PCB layouts, mechanical designs, and other hardware design
   files) is licensed under the
   [**CERN Open Hardware Licence Version 2 - Permissive (CERN-OHL-P v2)**](hardware/cern_ohl_p_v2.txt).
