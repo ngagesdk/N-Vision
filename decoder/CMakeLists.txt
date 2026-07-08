@@ -8,3 +8,4 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 add_executable(decoder decoder.c)
+add_executable(decoder_csv decoder_csv.c)
