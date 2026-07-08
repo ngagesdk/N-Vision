@@ -27,12 +27,12 @@
  * Raw stream byte layout (MSB first):
  *   bit 7 : LCDM       – mode:  1 = pixel-data word, 0 = command word
  *   bit 6 : LCDFSP     – frame start pulse       (pixel-data words only)
- *   bit 5 : LCDDe5     – display data bus, bit 5 (pixel-data words only)
- *   bit 4 : LCDDe4     – display data bus, bit 4
- *   bit 3 : LCDDe3     – display data bus, bit 3
- *   bit 2 : LCDDe2     – display data bus, bit 2
- *   bit 1 : LCDDe1     – display data bus, bit 1
- *   bit 0 : LCDDe0     – display data bus, bit 0
+ *   bit 5 : LCDDa5     – display data bus, bit 5 (pixel-data words only)
+ *   bit 4 : LCDDa4     – display data bus, bit 4
+ *   bit 3 : LCDDa3     – display data bus, bit 3
+ *   bit 2 : LCDDa2     – display data bus, bit 2
+ *   bit 1 : LCDDa1     – display data bus, bit 1
+ *   bit 0 : LCDDa0     – display data bus, bit 0
  *
  * Command words (LCDM = 0): bits 6-0 identify the control strobe asserted:
  *   LCDLLClk   0x75 – line-latch clock  (followed by target-row data words)
@@ -40,19 +40,19 @@
  * ----------------------------------------------------------------------- */
 #define LCDM   0x80u /* bit 7 */
 #define LCDFSP 0x40u /* bit 6 */
-#define LCDDe5 0x20u /* bit 5 */
-#define LCDDe4 0x10u /* bit 4 */
-#define LCDDe3 0x08u /* bit 3 */
-#define LCDDe2 0x04u /* bit 2 */
-#define LCDDe1 0x02u /* bit 1 */
-#define LCDDe0 0x01u /* bit 0 */
+#define LCDDa5 0x20u /* bit 5 */
+#define LCDDa4 0x10u /* bit 4 */
+#define LCDDa3 0x08u /* bit 3 */
+#define LCDDa2 0x04u /* bit 2 */
+#define LCDDa1 0x02u /* bit 1 */
+#define LCDDa0 0x01u /* bit 0 */
 
 #define LCDLLClk   0x75u /* line-latch clock strobe  (LCDM = 0) */
 #define LCDDISPClk 0x5Cu /* display pixel-clock strobe (LCDM = 0) */
 
 /* Composite masks used in nibble decode */
-#define LCD_PAYLOAD_MASK (LCDFSP | LCDDe5 | LCDDe4 | LCDDe3 | LCDDe2 | LCDDe1 | LCDDe0) /* bits 6-0 */
-#define NIB_DELTA_BIT    3                                                              /* LCDDe3 position within a low nibble */
+#define LCD_PAYLOAD_MASK (LCDFSP | LCDDa5 | LCDDa4 | LCDDa3 | LCDDa2 | LCDDa1 | LCDDa0) /* bits 6-0 */
+#define NIB_DELTA_BIT    3                                                              /* LCDDa3 position within a low nibble */
 #define NIB_DATA_MASK    0x7                                                            /* bits 2-0: color-data pins per nibble  */
 
 static uint8_t framebuf[HEIGHT * WIDTH * 3];
@@ -61,15 +61,15 @@ static uint8_t framebuf[HEIGHT * WIDTH * 3];
  * Decode nibble-encoded pixel data and write it into framebuf.
  *
  * Each data word (LCDM = 1) expands to two nibbles:
- *   high nibble (bits 7-4): [LCDM(1) | LCDFSP | LCDDe5 | LCDDe4]
- *   low  nibble (bits 3-0): [LCDDe3  | LCDDe2 | LCDDe1 | LCDDe0]
+ *   high nibble (bits 7-4): [LCDM(1) | LCDFSP | LCDDa5 | LCDDa4]
+ *   low  nibble (bits 3-0): [LCDDa3  | LCDDa2 | LCDDa1 | LCDDa0]
  *
  * Three consecutive nibbles encode one RGB pixel (n0 = R, n1 = G, n2 = B).
- * LCDDe3 (NIB_DELTA_BIT of every low nibble) is a 1-bit delta predictor for
+ * LCDDa3 (NIB_DELTA_BIT of every low nibble) is a 1-bit delta predictor for
  * the channel MSB.  Nibble alignment ensures the delta nibble is always a
  * low nibble:
- *   even pixel: n1 is low -> LCDDe3 updates last_g
- *   odd  pixel: n0, n2 are low -> LCDDe3 updates last_r / last_b
+ *   even pixel: n1 is low -> LCDDa3 updates last_g
+ *   odd  pixel: n0, n2 are low -> LCDDa3 updates last_r / last_b
  *
  * Channel value = (NIB_DATA_MASK bits | last_x << NIB_DELTA_BIT) * 16  -> 0-240
  */
@@ -82,8 +82,8 @@ static void decode_and_draw(const uint8_t *imdata, size_t imdata_len, int y_offs
 
     for (size_t k = 0; k < imdata_len; k++)
     {
-        nib[k * 2 + 0] = (imdata[k] >> 4) & 0xf; /* high: [LCDM | LCDFSP | LCDDe5 | LCDDe4] */
-        nib[k * 2 + 1] = imdata[k] & 0xf;        /* low:  [LCDDe3 | LCDDe2 | LCDDe1 | LCDDe0] */
+        nib[k * 2 + 0] = (imdata[k] >> 4) & 0xf; /* high: [LCDM | LCDFSP | LCDDa5 | LCDDa4] */
+        nib[k * 2 + 1] = imdata[k] & 0xf;        /* low:  [LCDDa3 | LCDDa2 | LCDDa1 | LCDDa0] */
     }
 
     int last_r = 0, last_g = 0, last_b = 0;
@@ -98,12 +98,12 @@ static void decode_and_draw(const uint8_t *imdata, size_t imdata_len, int y_offs
 
         if (coli % 2 == 0)
         {
-            last_g = n1 >> NIB_DELTA_BIT; /* LCDDe3: G-channel MSB predictor */
+            last_g = n1 >> NIB_DELTA_BIT; /* LCDDa3: G-channel MSB predictor */
         }
         else
         {
-            last_r = n0 >> NIB_DELTA_BIT; /* LCDDe3: R-channel MSB predictor */
-            last_b = n2 >> NIB_DELTA_BIT; /* LCDDe3: B-channel MSB predictor */
+            last_r = n0 >> NIB_DELTA_BIT; /* LCDDa3: R-channel MSB predictor */
+            last_b = n2 >> NIB_DELTA_BIT; /* LCDDa3: B-channel MSB predictor */
         }
 
         int r = ((n0 & NIB_DATA_MASK) | (last_r << NIB_DELTA_BIT)) * 16;
@@ -202,7 +202,7 @@ int main(void)
             if (state == LCDLLClk)
             {
                 if (index < 4)
-                    target_data[index] = b & LCD_PAYLOAD_MASK; /* [LCDFSP | LCDDe5:LCDDe0] */
+                    target_data[index] = b & LCD_PAYLOAD_MASK; /* [LCDFSP | LCDDa5:LCDDa0] */
                 index++;
             }
             else if (state == LCDDISPClk)
