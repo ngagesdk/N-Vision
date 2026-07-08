@@ -31,13 +31,12 @@ DVI, making it suitable for recording, streaming, or development purposes.
 - Designed specifically for the Nokia N-Gage Classic
 
 ## Project Structure
-
-- [decoder/](decoder/) - Proof-of-concept decoder that converts a binary signal trace
-  file into a set of images.
-- [firmware/](firmware/) - Firmware for the Raspberry Pi Pico 2 that captures and
-  decodes the N-Gage display signals in real time.
-- [hardware/](hardware/) -  Hardware design files for the custom flexible PCB that
-  interfaces with the N-Gage display.
+ 
+| Directory              | Description                                                                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------------------- |
+| [decoder/](decoder/)   | Proof-of-concept decoder that converts a binary signal trace file into a set of images.                 |
+| [firmware/](firmware/) | Firmware for the Raspberry Pi Pico 2 that captures and decodes the N-Gage display signals in real time. |
+| [hardware/](hardware/) | Hardware design files for the custom flexible PCB that interfaces with the N-Gage display.              | 
 
 ## Project Status
 
