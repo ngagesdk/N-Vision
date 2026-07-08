@@ -51,8 +51,6 @@
 #define CH_LCDDa1 3  /* CSV column wired to LCDDa1 (bus bit 1)            */
 #define CH_LCDDa0 2  /* CSV column wired to LCDDa0 (bus bit 0)            */
 
-// 11, 12, 13, 6, 5, 4, 3, 2 !
-
 /* -----------------------------------------------------------------------
  * LCD bus signals - every bit position carries the name of its physical pin.
  * Raw stream byte layout (MSB first):
