@@ -57,7 +57,7 @@
  * LCD bus signals - every bit position carries the name of its physical pin.
  * Raw stream byte layout (MSB first):
  *
- *   bit 7 : LCDM       – mode:  1 = pixel-data word, 0 = command word
+ *   bit 7 : LCDM       – mode: 1 = pixel-data word, 0 = command word
  *   bit 6 : LCDDa6     – display data bus, bit 6
  *   bit 5 : LCDDa5     – display data bus, bit 5
  *   bit 4 : LCDDa4     – display data bus, bit 4
