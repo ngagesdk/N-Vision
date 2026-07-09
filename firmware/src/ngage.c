@@ -22,7 +22,7 @@
   *                                                                         *
   * Raw bus byte layout (MSB first - matches PIO capture with in_base wired *
   * MSB-first as documented in ngage_lcd.h):                                *
-  *   bit 7 : LCDM       mode:  1 = pixel-data word, 0 = command word       *
+  *   bit 7 : LCDDa7     display data bus, bit 7                            *
   *   bit 6 : LCDDa6     display data bus, bit 6                            *
   *   bit 5 : LCDDa5     display data bus, bit 5                            *
   *   bit 4 : LCDDa4     display data bus, bit 4                            *
@@ -30,9 +30,12 @@
   *   bit 2 : LCDDa2     display data bus, bit 2                            *
   *   bit 1 : LCDDa1     display data bus, bit 1                            *
   *   bit 0 : LCDDa0     display data bus, bit 0                            *
+  *                                                                         *
+  * LCDM (mode flag: 1=pixel-data, 0=command) is a separate GPIO signal,    *
+  * NOT included in the captured data byte. Read via gpio_get() separately. *
   * ----------------------------------------------------------------------- */
-#define LCDM             0x80u
-#define LCD_PAYLOAD_MASK 0x7Fu  // bits 6-0.
+#define LCDM_HIGH        0x01u  // LCDM mode flag value (macro for clarity)
+#define LCD_PAYLOAD_MASK 0xFFu  // all bits 7-0: data bus (LCDDa7-LCDDa0).
 #define LCDLLClk         0x75u  // line-latch clock strobe  (LCDM = 0).
 #define LCDDISPClk       0x5Cu  // display pixel-clock strobe (LCDM = 0).
 
@@ -48,6 +51,7 @@ char display_buffer_rgb565[NGAGE_BUFFER_SIZE];
 static int s_state;
 static int s_index;
 static int s_target_data[4]; // row-address bytes collected after LCDLLClk.
+static int s_lcdm;            // LCDM mode signal (1=pixel-data, 0=command)
 
 // Rolling 3-nibble pipeline (two nibbles per bus byte, three per pixel).
 static int s_nib[3];
@@ -89,12 +93,13 @@ static void write_pixel(int x, int y, int r, int g, int b)
  * process_nibbles                                                         *
  *                                                                         *
  * Decodes one RGB pixel from three consecutive nibbles:                   *
- *   n0 (high nibble): [LCDM(1) | LCDDa6 | LCDDa5 | LCDDa4]                *
- *   n1 (low  nibble): [LCDDa3  | LCDDa2 | LCDDa1 | LCDDa0]                *
+ *   n0 (high nibble): [LCDDa7 | LCDDa6 | LCDDa5 | LCDDa4]                 *
+ *   n1 (low  nibble): [LCDDa3 | LCDDa2 | LCDDa1 | LCDDa0]                 *
  *   n2 (high nibble): same layout as n0                                   *
  *                                                                         *
  * LCDDa3 (bit 3 of every low nibble) is a 1-bit delta predictor for the   *
- * channel MSB; high nibbles always carry LCDM=1 so their bit 3 is masked. *
+ * channel MSB; high nibbles always have data so their bit 3 is used as    *
+ * the predictor value for the corresponding channel.                      *
  * ----------------------------------------------------------------------- */
 static void process_nibbles(int n0, int n1, int n2)
 {
@@ -132,7 +137,7 @@ static void process_pixel_byte(uint8_t b)
     int i;
     int new_nibs[2];
 
-    new_nibs[0] = (b >> 4) & 0xF; // high nibble: [LCDM | LCDDa6 | LCDDa5 | LCDDa4]
+    new_nibs[0] = (b >> 4) & 0xF; // high nibble: [LCDDa7 | LCDDa6 | LCDDa5 | LCDDa4]
     new_nibs[1] = b & 0xF;        // low  nibble: [LCDDa3 | LCDDa2 | LCDDa1 | LCDDa0]
 
     for (i = 0; i < 2; i++)
@@ -150,14 +155,14 @@ static void process_pixel_byte(uint8_t b)
  * process_byte                                                           *
  *                                                                        *
  * Top-level bus-word state machine; mirrors the main parse loop in       *
- * decoder.c.  Command words (LCDM=0) drive state transitions; pixel-data *
- * words (LCDM=1) are forwarded to the nibble decoder.                    *
+ * decoder_csv.c. The LCDM mode flag (read separately) determines if      *
+ * this data byte is a command word (LCDM=0) or pixel-data (LCDM=1).      *
  * ---------------------------------------------------------------------- */
 static void process_byte(uint8_t b)
 {
-    if ((b & LCDM) == 0)
+    if (s_lcdm == 0)
     {
-        // Command word.
+        // Command word (LCDM = 0).
         uint8_t strobe = b & LCD_PAYLOAD_MASK;
 
         if (strobe == LCDLLClk)
@@ -210,6 +215,10 @@ void ngage_lcd_init(void)
     ngage_lcd_program_init(NGAGE_LCD_PIO, NGAGE_LCD_SM, offset,
         NGAGE_LCD_DATA_BASE_PIN, NGAGE_LCD_CLK_PIN,
         1.0f);
+
+    // Initialize LCDM GPIO as input
+    gpio_init(NGAGE_LCD_LCDM_PIN);
+    gpio_set_dir(NGAGE_LCD_LCDM_PIN, GPIO_IN);
 }
 
 void update_display_buffer(void)
@@ -218,6 +227,10 @@ void update_display_buffer(void)
     while (!pio_sm_is_rx_fifo_empty(NGAGE_LCD_PIO, NGAGE_LCD_SM))
     {
         uint32_t raw = pio_sm_get(NGAGE_LCD_PIO, NGAGE_LCD_SM);
+
+        // Read LCDM GPIO state (mode flag: 1=pixel-data, 0=command)
+        s_lcdm = gpio_get(NGAGE_LCD_LCDM_PIN) ? 1 : 0;
+
         process_byte((uint8_t)(raw & 0xFF));
     }
 }

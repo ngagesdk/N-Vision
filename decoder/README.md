@@ -8,18 +8,20 @@ display with 176×208 pixel resolution and 12-bit color depth (4096 colors).
 
 ## Bus Architecture
 
-The LCD bus consists of **9 signal lines**:
+The LCD bus consists of **10 signal lines**:
 
 - **LCDCLK** - Master clock signal. All data transfers occur on the rising edge.
-- **LCDM** - Mode flag (1 bit)
+- **LCDM** - Mode flag (1 bit, separate control signal)
   - `1` = Pixel-data word
   - `0` = Command word
-- **LCDDa0–LCDDa6** - 7-bit data bus (bits 0–6, respectively)
+- **LCDDa0–LCDDa7** - 8-bit data bus (bits 0–7, respectively)
 
 ### Bus Byte Layout (MSB First)
 
+LCDM is sampled independently from the 8-bit data bus:
+
 ```
-Bit 7: LCDM       – Mode: 1 = pixel-data word, 0 = command
+Bit 7: LCDDa7     – Display data bus, bit 7
 Bit 6: LCDDa6     – Display data bus, bit 6
 Bit 5: LCDDa5     – Display data bus, bit 5
 Bit 4: LCDDa4     – Display data bus, bit 4
@@ -27,14 +29,17 @@ Bit 3: LCDDa3     – Display data bus, bit 3
 Bit 2: LCDDa2     – Display data bus, bit 2
 Bit 1: LCDDa1     – Display data bus, bit 1
 Bit 0: LCDDa0     – Display data bus, bit 0
+
+Separate signal:
+LCDM              – Mode: 1 = pixel-data word, 0 = command
 ```
 
 ## Command Words (LCDM = 0)
 
-When **LCDM = 0**, bits 6–0 encode a control strobe. The payload is masked as:
+When **LCDM = 0**, bits 7–0 encode a control strobe. The payload is masked as:
 
 ```
-LCD_PAYLOAD_MASK = 0x7F (bits 6–0)
+LCD_PAYLOAD_MASK = 0xFF (bits 7–0)
 ```
 
 ### Defined Commands
@@ -61,7 +66,7 @@ LCD_PAYLOAD_MASK = 0x7F (bits 6–0)
 When **LCDM = 1**, a data word is transmitted. The payload is:
 
 ```
-LCD_PAYLOAD_MASK = 0x7F (bits 6–0)
+LCD_PAYLOAD_MASK = 0xFF (bits 7–0)
 ```
 
 ### Pixel Data Format
@@ -69,13 +74,13 @@ LCD_PAYLOAD_MASK = 0x7F (bits 6–0)
 Pixel data is encoded using **4-bit nibbles** (half-bytes).
 Each transmitted byte contains **two nibbles**:
 
-- **High nibble** = bits 7–4 (contains `LCDM` + upper data bits)
+- **High nibble** = bits 7–4 (contains upper data bits)
 - **Low nibble** = bits 3–0 (contains lower data bits)
 
 Each nibble represents 4 bits of display information:
 
 ```
-High nibble: [LCDM | LCDDa6 | LCDDa5 | LCDDa4]
+High nibble: [LCDDa7 | LCDDa6 | LCDDa5 | LCDDa4]
 Low nibble:  [LCDDa3 | LCDDa2 | LCDDa1 | LCDDa0]
 ```
 

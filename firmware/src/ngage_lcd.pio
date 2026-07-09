@@ -1,20 +1,26 @@
 ;; ngage_lcd.pio
 ;;
-;; Samples the 8-bit N-Gage LCD parallel bus on each rising edge of the clock.
+;; Samples the 8-bit N-Gage LCD parallel bus (data pins LCDDa7-LCDDa0) on each 
+;; rising edge of the clock.
 ;;
 ;; DATA PINS  : 8 consecutive GPIOs configured with sm_config_set_in_pins().
-;;              Wire MSB-first so the captured byte matches the raw bus word:
-;;                in_base+7 = LCDM   (bus bit 7)
-;;                in_base+6 = LCDDa6 (bus bit 6)
-;;                in_base+5 = LCDDa5 (bus bit 5)
-;;                in_base+4 = LCDDa4 (bus bit 4)
-;;                in_base+3 = LCDDa3 (bus bit 3)
-;;                in_base+2 = LCDDa2 (bus bit 2)
-;;                in_base+1 = LCDDa1 (bus bit 1)
-;;                in_base+0 = LCDDa0 (bus bit 0)
+;;              Wire MSB-first so the captured byte matches the raw data bus:
+;;                in_base+7 = LCDDa7 (data bus bit 7)
+;;                in_base+6 = LCDDa6 (data bus bit 6)
+;;                in_base+5 = LCDDa5 (data bus bit 5)
+;;                in_base+4 = LCDDa4 (data bus bit 4)
+;;                in_base+3 = LCDDa3 (data bus bit 3)
+;;                in_base+2 = LCDDa2 (data bus bit 2)
+;;                in_base+1 = LCDDa1 (data bus bit 1)
+;;                in_base+0 = LCDDa0 (data bus bit 0)
 ;;
 ;; CLOCK PIN  : any GPIO, configured with sm_config_set_jmp_pin().
 ;;              Rising-edge triggered; fully independent of the data pin group.
+;;              Used for synchronization only; its state is NOT captured.
+;;
+;; LCDM PIN   : Separate GPIO for the LCDM mode signal. Read independently
+;;              (e.g., via gpio_get) to determine command vs. pixel-data mode.
+;;              NOT sampled by the PIO state machine.
 
 .program ngage_lcd
 
@@ -33,16 +39,18 @@ sample:
 // ---------------------------------------------------------------------------
 // ngage_lcd_program_init
 //
-// Configures a PIO state machine to capture the N-Gage LCD bus.
+// Configures a PIO state machine to capture the N-Gage LCD data bus.
 //
 // Parameters:
 //   pio           : PIO instance (e.g. pio1)
 //   sm            : state machine index
 //   offset        : instruction-memory offset from pio_add_program()
-//   data_base_pin : first of 8 consecutive input GPIOs
-//                   (wire in_base+7 = LCDM, in_base+0 = LCDDa0)
+//   data_base_pin : first of 8 consecutive input GPIOs (LCDDa7 to LCDDa0)
 //   clk_pin       : clock GPIO (independent of data_base_pin)
 //   clk_div       : PIO clock divider (1.0f = full system clock)
+//
+// NOTE: The LCDM mode signal must be read separately via gpio_get()
+//       and is NOT captured by this state machine.
 // ---------------------------------------------------------------------------
 static inline void ngage_lcd_program_init(PIO pio, uint sm, uint offset,
                                           uint data_base_pin, uint clk_pin,
