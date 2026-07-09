@@ -34,7 +34,7 @@ DVI, making it suitable for recording, streaming, or development purposes.
  
 | Directory              | Description                                                                                             |
 | :--------------------- | :------------------------------------------------------------------------------------------------------ |
-| [decoder/](decoder/)   | Proof-of-concept decoder that converts a binary signal trace file into a set of images.                 |
+| [decoder/](decoder/)   | Proof-of-concept decoder to toy around with display signals.                                            |
 | [firmware/](firmware/) | Firmware for the Raspberry Pi Pico 2 that captures and decodes the N-Gage display signals in real time. |
 | [hardware/](hardware/) | Hardware design files for the custom flexible PCB that interfaces with the N-Gage display.              | 
 
