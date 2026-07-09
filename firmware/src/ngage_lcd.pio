@@ -5,7 +5,7 @@
 ;; DATA PINS  : 8 consecutive GPIOs configured with sm_config_set_in_pins().
 ;;              Wire MSB-first so the captured byte matches the raw bus word:
 ;;                in_base+7 = LCDM   (bus bit 7)
-;;                in_base+6 = LCDFSP (bus bit 6)
+;;                in_base+6 = LCDDa6 (bus bit 6)
 ;;                in_base+5 = LCDDa5 (bus bit 5)
 ;;                in_base+4 = LCDDa4 (bus bit 4)
 ;;                in_base+3 = LCDDa3 (bus bit 3)

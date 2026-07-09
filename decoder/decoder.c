@@ -21,23 +21,23 @@
 #define HEIGHT       208
 #define TOTAL_PIXELS (WIDTH * HEIGHT)
 
-/* -----------------------------------------------------------------------
- * LCD bus signals - every bit position carries the name of its physical pin.
- *
- * Raw stream byte layout (MSB first):
- *   bit 7 : LCDM       – mode: 1 = pixel-data word, 0 = command word
- *   bit 6 : LCDDa6     – display data bus, bit 6
- *   bit 5 : LCDDa5     – display data bus, bit 5
- *   bit 4 : LCDDa4     – display data bus, bit 4
- *   bit 3 : LCDDa3     – display data bus, bit 3
- *   bit 2 : LCDDa2     – display data bus, bit 2
- *   bit 1 : LCDDa1     – display data bus, bit 1
- *   bit 0 : LCDDa0     – display data bus, bit 0
- *
- * Command words (LCDM = 0): bits 6-0 identify the control strobe asserted:
- *   LCDLLClk   0x75 – line-latch clock  (followed by target-row data words)
- *   LCDDISPClk 0x5C – display pixel clock (followed by pixel data words)
- * ----------------------------------------------------------------------- */
+ /* -----------------------------------------------------------------------
+  * LCD bus signals - every bit position carries the name of its physical pin.
+  *
+  * Raw stream byte layout (MSB first):
+  *   bit 7 : LCDM       – mode: 1 = pixel-data word, 0 = command word
+  *   bit 6 : LCDDa6     – display data bus, bit 6
+  *   bit 5 : LCDDa5     – display data bus, bit 5
+  *   bit 4 : LCDDa4     – display data bus, bit 4
+  *   bit 3 : LCDDa3     – display data bus, bit 3
+  *   bit 2 : LCDDa2     – display data bus, bit 2
+  *   bit 1 : LCDDa1     – display data bus, bit 1
+  *   bit 0 : LCDDa0     – display data bus, bit 0
+  *
+  * Command words (LCDM = 0): bits 6-0 identify the control strobe asserted:
+  *   LCDLLClk   0x75 – line-latch clock  (followed by target-row data words)
+  *   LCDDISPClk 0x5C – display pixel clock (followed by pixel data words)
+  * ----------------------------------------------------------------------- */
 #define LCDM   0x80u /* bit 7 */
 #define LCDDa6 0x40u /* bit 6 */
 #define LCDDa5 0x20u /* bit 5 */
@@ -50,7 +50,7 @@
 #define LCDLLClk   0x75u /* line-latch clock strobe  (LCDM = 0) */
 #define LCDDISPClk 0x5Cu /* display pixel-clock strobe (LCDM = 0) */
 
-/* Composite masks used in nibble decode */
+  /* Composite masks used in nibble decode */
 #define LCD_PAYLOAD_MASK (LCDDa6 | LCDDa5 | LCDDa4 | LCDDa3 | LCDDa2 | LCDDa1 | LCDDa0) /* bits 6-0 */
 #define NIB_DELTA_BIT    3                                                              /* LCDDa3 position within a low nibble */
 #define NIB_DATA_MASK    0x7                                                            /* bits 2-0: color-data pins per nibble  */
@@ -73,172 +73,176 @@ static uint8_t framebuf[HEIGHT * WIDTH * 3];
  *
  * Channel value = (NIB_DATA_MASK bits | last_x << NIB_DELTA_BIT) * 16  -> 0-240
  */
-static void decode_and_draw(const uint8_t *imdata, size_t imdata_len, int y_offset)
+static void decode_and_draw(const uint8_t* imdata, size_t imdata_len, int y_offset)
 {
-    size_t nibble_count = imdata_len * 2;
-    uint8_t *nib = (uint8_t *)malloc(nibble_count);
-    if (!nib)
-        return;
+	size_t nibble_count = imdata_len * 2;
+	uint8_t* nib = (uint8_t*)malloc(nibble_count);
+	if (!nib)
+	{
+		return;
+	}
 
-    for (size_t k = 0; k < imdata_len; k++)
-    {
-        nib[k * 2 + 0] = (imdata[k] >> 4) & 0xf; /* high: [LCDM | LCDDa6 | LCDDa5 | LCDDa4] */
-        nib[k * 2 + 1] = imdata[k] & 0xf;        /* low:  [LCDDa3 | LCDDa2 | LCDDa1 | LCDDa0] */
-    }
+	for (size_t k = 0; k < imdata_len; k++)
+	{
+		nib[k * 2 + 0] = (imdata[k] >> 4) & 0xf; /* high: [LCDM | LCDDa6 | LCDDa5 | LCDDa4] */
+		nib[k * 2 + 1] = imdata[k] & 0xf;        /* low:  [LCDDa3 | LCDDa2 | LCDDa1 | LCDDa0] */
+	}
 
-    int last_r = 0, last_g = 0, last_b = 0;
-    int coli = 0;
-    size_t off = 0;
+	int last_r = 0, last_g = 0, last_b = 0;
+	int coli = 0;
+	size_t off = 0;
 
-    while (nibble_count - off >= 3)
-    {
-        int n0 = nib[off + 0];
-        int n1 = nib[off + 1];
-        int n2 = nib[off + 2];
+	while (nibble_count - off >= 3)
+	{
+		int n0 = nib[off + 0];
+		int n1 = nib[off + 1];
+		int n2 = nib[off + 2];
 
-        if (coli % 2 == 0)
-        {
-            last_g = n1 >> NIB_DELTA_BIT; /* LCDDa3: G-channel MSB predictor */
-        }
-        else
-        {
-            last_r = n0 >> NIB_DELTA_BIT; /* LCDDa3: R-channel MSB predictor */
-            last_b = n2 >> NIB_DELTA_BIT; /* LCDDa3: B-channel MSB predictor */
-        }
+		if (coli % 2 == 0)
+		{
+			last_g = n1 >> NIB_DELTA_BIT; /* LCDDa3: G-channel MSB predictor */
+		}
+		else
+		{
+			last_r = n0 >> NIB_DELTA_BIT; /* LCDDa3: R-channel MSB predictor */
+			last_b = n2 >> NIB_DELTA_BIT; /* LCDDa3: B-channel MSB predictor */
+		}
 
-        int r = ((n0 & NIB_DATA_MASK) | (last_r << NIB_DELTA_BIT)) * 16;
-        int g = ((n1 & NIB_DATA_MASK) | (last_g << NIB_DELTA_BIT)) * 16;
-        int b = ((n2 & NIB_DATA_MASK) | (last_b << NIB_DELTA_BIT)) * 16;
+		int r = ((n0 & NIB_DATA_MASK) | (last_r << NIB_DELTA_BIT)) * 16;
+		int g = ((n1 & NIB_DATA_MASK) | (last_g << NIB_DELTA_BIT)) * 16;
+		int b = ((n2 & NIB_DATA_MASK) | (last_b << NIB_DELTA_BIT)) * 16;
 
-        int cx = coli % WIDTH;
-        int cy = y_offset + (coli / WIDTH);
+		int cx = coli % WIDTH;
+		int cy = y_offset + (coli / WIDTH);
 
-        if (cx >= 0 && cx < WIDTH && cy >= 0 && cy < HEIGHT)
-        {
-            size_t idx = (size_t)((cy * WIDTH + cx) * 3);
-            framebuf[idx + 0] = (uint8_t)r;
-            framebuf[idx + 1] = (uint8_t)g;
-            framebuf[idx + 2] = (uint8_t)b;
-        }
+		if (cx >= 0 && cx < WIDTH && cy >= 0 && cy < HEIGHT)
+		{
+			size_t idx = (size_t)((cy * WIDTH + cx) * 3);
+			framebuf[idx + 0] = (uint8_t)r;
+			framebuf[idx + 1] = (uint8_t)g;
+			framebuf[idx + 2] = (uint8_t)b;
+		}
 
-        off += 3;
-        coli += 1;
-    }
+		off += 3;
+		coli += 1;
+	}
 
-    free(nib);
+	free(nib);
 }
 
 int main(void)
 {
-    const char *input_file = "fullboot_with_sim.bin";
-    FILE *fp = fopen(input_file, "rb");
-    if (!fp)
-    {
-        fprintf(stderr, "Cannot open %s\n", input_file);
-        return 1;
-    }
+	const char* input_file = "fullboot_with_sim.bin";
+	FILE* fp = fopen(input_file, "rb");
+	if (!fp)
+	{
+		fprintf(stderr, "Cannot open %s\n", input_file);
+		return 1;
+	}
 
-    fseek(fp, 0, SEEK_END);
-    long fsize = ftell(fp);
-    rewind(fp);
+	fseek(fp, 0, SEEK_END);
+	long fsize = ftell(fp);
+	rewind(fp);
 
-    uint8_t *data = (uint8_t *)malloc((size_t)fsize);
-    if (!data)
-    {
-        fclose(fp);
-        return 1;
-    }
-    fread(data, 1, (size_t)fsize, fp);
-    fclose(fp);
+	uint8_t* data = (uint8_t*)malloc((size_t)fsize);
+	if (!data)
+	{
+		fclose(fp);
+		return 1;
+	}
+	fread(data, 1, (size_t)fsize, fp);
+	fclose(fp);
 
-    _mkdir("frames");
-    memset(framebuf, 0, sizeof(framebuf));
+	_mkdir("frames");
+	memset(framebuf, 0, sizeof(framebuf));
 
-    int state = 0;
-    int target_data[4] = { 0, 0, 0, 0 };
-    int index = 0;
-    uint8_t *imdata = NULL;
-    size_t imdata_len = 0;
-    size_t imdata_cap = 0;
-    int imageindex = 0;
+	int state = 0;
+	int target_data[4] = { 0, 0, 0, 0 };
+	int index = 0;
+	uint8_t* imdata = NULL;
+	size_t imdata_len = 0;
+	size_t imdata_cap = 0;
+	int imageindex = 0;
 
-    for (long i = 0; i < fsize; i++)
-    {
-        uint8_t b = data[i];
+	for (long i = 0; i < fsize; i++)
+	{
+		uint8_t b = data[i];
 
-        if ((b & LCDM) == 0)
-        {
-            /* Command word: LCDM = 0, flush any pending pixel data first */
-            if (index > 0)
-            {
-                decode_and_draw(imdata, imdata_len, target_data[0]);
-                imageindex++;
-                char path[64];
-                snprintf(path, sizeof(path), "frames/%04d.png", imageindex);
-                stbi_write_png(path, WIDTH, HEIGHT, 3, framebuf, WIDTH * 3);
-            }
+		if ((b & LCDM) == 0)
+		{
+			/* Command word: LCDM = 0, flush any pending pixel data first */
+			if (index > 0)
+			{
+				decode_and_draw(imdata, imdata_len, target_data[0]);
+				imageindex++;
+				char path[64];
+				snprintf(path, sizeof(path), "frames/%04d.png", imageindex);
+				stbi_write_png(path, WIDTH, HEIGHT, 3, framebuf, WIDTH * 3);
+			}
 
-            uint8_t strobe = b & LCD_PAYLOAD_MASK;
-            if (strobe == LCDLLClk)
-            {
-                state = LCDLLClk;
-                imdata_len = 0; /* start fresh pixel buffer for this frame */
-                index = 0;
-            }
-            else if (strobe == LCDDISPClk)
-            {
-                state = LCDDISPClk;
-                index = 0; /* imdata intentionally NOT reset - accumulates */
-            }
-            else
-            {
-                state = 0;
-                index = 0;
-            }
-        }
-        else
-        {
-            /* Pixel-data word: LCDM = 1 */
-            if (state == LCDLLClk)
-            {
-                if (index < 4)
-                    target_data[index] = b & LCD_PAYLOAD_MASK; /* [LCDDa6 | LCDDa5:LCDDa0] */
-                index++;
-            }
-            else if (state == LCDDISPClk)
-            {
-                if (imdata_len >= imdata_cap)
-                {
-                    size_t new_cap = (imdata_cap == 0) ? 4096 : imdata_cap * 2;
-                    uint8_t *tmp = (uint8_t *)realloc(imdata, new_cap);
-                    if (!tmp)
-                    {
-                        free(imdata);
-                        free(data);
-                        return 1;
-                    }
-                    imdata = tmp;
-                    imdata_cap = new_cap;
-                }
-                imdata[imdata_len++] = b;
-                index++;
-            }
-        }
-    }
+			uint8_t strobe = b & LCD_PAYLOAD_MASK;
+			if (strobe == LCDLLClk)
+			{
+				state = LCDLLClk;
+				imdata_len = 0; /* start fresh pixel buffer for this frame */
+				index = 0;
+			}
+			else if (strobe == LCDDISPClk)
+			{
+				state = LCDDISPClk;
+				index = 0; /* imdata intentionally NOT reset - accumulates */
+			}
+			else
+			{
+				state = 0;
+				index = 0;
+			}
+		}
+		else
+		{
+			/* Pixel-data word: LCDM = 1 */
+			if (state == LCDLLClk)
+			{
+				if (index < 4)
+				{
+					target_data[index] = b & LCD_PAYLOAD_MASK; /* [LCDDa6 | LCDDa5:LCDDa0] */
+				}
+				index++;
+			}
+			else if (state == LCDDISPClk)
+			{
+				if (imdata_len >= imdata_cap)
+				{
+					size_t new_cap = (imdata_cap == 0) ? 4096 : imdata_cap * 2;
+					uint8_t* tmp = (uint8_t*)realloc(imdata, new_cap);
+					if (!tmp)
+					{
+						free(imdata);
+						free(data);
+						return 1;
+					}
+					imdata = tmp;
+					imdata_cap = new_cap;
+				}
+				imdata[imdata_len++] = b;
+				index++;
+			}
+		}
+	}
 
-    /* Flush any trailing draw data at end of file */
-    if (index > 0 && imdata_len > 0)
-    {
-        decode_and_draw(imdata, imdata_len, target_data[0]);
-        imageindex++;
-        char path[64];
-        snprintf(path, sizeof(path), "frames/%04d.png", imageindex);
-        stbi_write_png(path, WIDTH, HEIGHT, 3, framebuf, WIDTH * 3);
-    }
+	/* Flush any trailing draw data at end of file */
+	if (index > 0 && imdata_len > 0)
+	{
+		decode_and_draw(imdata, imdata_len, target_data[0]);
+		imageindex++;
+		char path[64];
+		snprintf(path, sizeof(path), "frames/%04d.png", imageindex);
+		stbi_write_png(path, WIDTH, HEIGHT, 3, framebuf, WIDTH * 3);
+	}
 
-    printf("Saved %d frames to frames/.\n", imageindex);
+	printf("Saved %d frames to frames/.\n", imageindex);
 
-    free(imdata);
-    free(data);
-    return 0;
+	free(imdata);
+	free(data);
+	return 0;
 }

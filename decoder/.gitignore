@@ -1,0 +1,5 @@
+frames
+out
+*.exe
+*.ilk
+*.pdb

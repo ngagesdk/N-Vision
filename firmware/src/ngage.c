@@ -23,7 +23,7 @@
   * Raw bus byte layout (MSB first - matches PIO capture with in_base wired *
   * MSB-first as documented in ngage_lcd.h):                                *
   *   bit 7 : LCDM       mode:  1 = pixel-data word, 0 = command word       *
-  *   bit 6 : LCDFSP     frame start pulse                                  *
+  *   bit 6 : LCDDa6     display data bus, bit 6                            *
   *   bit 5 : LCDDa5     display data bus, bit 5                            *
   *   bit 4 : LCDDa4     display data bus, bit 4                            *
   *   bit 3 : LCDDa3     display data bus, bit 3                            *
@@ -89,7 +89,7 @@ static void write_pixel(int x, int y, int r, int g, int b)
  * process_nibbles                                                         *
  *                                                                         *
  * Decodes one RGB pixel from three consecutive nibbles:                   *
- *   n0 (high nibble): [LCDM(1) | LCDFSP | LCDDa5 | LCDDa4]                *
+ *   n0 (high nibble): [LCDM(1) | LCDDa6 | LCDDa5 | LCDDa4]                *
  *   n1 (low  nibble): [LCDDa3  | LCDDa2 | LCDDa1 | LCDDa0]                *
  *   n2 (high nibble): same layout as n0                                   *
  *                                                                         *
@@ -132,7 +132,7 @@ static void process_pixel_byte(uint8_t b)
     int i;
     int new_nibs[2];
 
-    new_nibs[0] = (b >> 4) & 0xF; // high nibble: [LCDM | LCDFSP | LCDDa5 | LCDDa4]
+    new_nibs[0] = (b >> 4) & 0xF; // high nibble: [LCDM | LCDDa6 | LCDDa5 | LCDDa4]
     new_nibs[1] = b & 0xF;        // low  nibble: [LCDDa3 | LCDDa2 | LCDDa1 | LCDDa0]
 
     for (i = 0; i < 2; i++)

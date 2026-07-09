@@ -9,7 +9,7 @@
  *             matches the raw bus word directly:
  *
  *               NGAGE_LCD_DATA_BASE_PIN + 7  =  LCDM   (bus bit 7)
- *               NGAGE_LCD_DATA_BASE_PIN + 6  =  LCDFSP (bus bit 6)
+ *               NGAGE_LCD_DATA_BASE_PIN + 6  =  LCDDa6 (bus bit 6)
  *               NGAGE_LCD_DATA_BASE_PIN + 5  =  LCDDa5 (bus bit 5)
  *               NGAGE_LCD_DATA_BASE_PIN + 4  =  LCDDa4 (bus bit 4)
  *               NGAGE_LCD_DATA_BASE_PIN + 3  =  LCDDa3 (bus bit 3)
