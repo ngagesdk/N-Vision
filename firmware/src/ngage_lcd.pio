@@ -18,9 +18,9 @@
 ;;              Rising-edge triggered; fully independent of the data pin group.
 ;;              Used for synchronization only; its state is NOT captured.
 ;;
-;; LCDM PIN   : Separate GPIO for the LCDM mode signal. Read independently
-;;              (e.g., via gpio_get) to determine command vs. pixel-data mode.
-;;              NOT sampled by the PIO state machine.
+;; LCDM PIN   : Must be wired to in_base+9 (one above the clock pin).
+;;              Captured as bit 9 of the same sampled word so its state is
+;;              always synchronised with the bus byte it belongs to.
 
 .program ngage_lcd
 
@@ -31,8 +31,8 @@ wait_clk_rise:
     jmp pin, sample         ; rising edge detected - go latch
     jmp wait_clk_rise       ; still low, keep polling
 sample:
-    in pins, 8              ; latch all 8 data pins into ISR (shift left)
-    push noblock            ; push byte to RX FIFO; clears ISR even if FIFO full
+    in pins, 10             ; latch 8 data pins + CLK (bit 8) + LCDM (bit 9) into ISR
+    push noblock            ; push word to RX FIFO; clears ISR even if FIFO full
 .wrap
 
 % c-sdk {

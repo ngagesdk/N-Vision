@@ -208,8 +208,8 @@ void update_display_buffer(void)
     {
         uint32_t raw = pio_sm_get(NGAGE_LCD_PIO, NGAGE_LCD_SM);
 
-        // Read LCDM GPIO state (mode flag: 1=pixel-data, 0=command)
-        s_lcdm = gpio_get(NGAGE_LCD_LCDM_PIN) ? 1 : 0;
+        // LCDM mode flag captured in bit 9 of the same PIO sample (data_base_pin+9).
+        s_lcdm = (int)((raw >> 9) & 1u);
 
         process_byte((uint8_t)(raw & 0xFF));
     }
