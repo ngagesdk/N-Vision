@@ -84,38 +84,29 @@ High nibble: [LCDDa7 | LCDDa6 | LCDDa5 | LCDDa4]
 Low nibble:  [LCDDa3 | LCDDa2 | LCDDa1 | LCDDa0]
 ```
 
-### Color Encoding (12-bit Depth with Interlacing)
+### Color Encoding (12-bit Depth)
 
-The display uses **12-bit RGB color** (4 bits per color channel, 4,096 total colors). The encoding uses an interlaced nibble scheme that interleaves color components across consecutive nibbles:
+The display uses **12-bit RGB color** (4 bits per color channel, 4,096 total colors). Three consecutive nibbles encode one pixel, with each nibble's 4 bits mapping directly to one color channel:
 
 1. **Three consecutive data nibbles** encode one pixel:
-   - `n0` - Red channel (contains R[2:0] as LSBs and R[3] as interlaced bit)
-   - `n1` - Green channel (contains G[2:0] as LSBs and G[3] as interlaced bit)
-   - `n2` - Blue channel (contains B[2:0] as LSBs and B[3] as interlaced bit)
+   - `n0` - Red channel (R[3:0])
+   - `n1` - Green channel (G[3:0])
+   - `n2` - Blue channel (B[3:0])
 
-2. **Interlaced MSB Encoding** (bit 3 in each nibble):
+2. **Direct MSB Encoding** (bit 3 in each nibble):
 
-   The MSB of each color component is predicted/selected based on **pixel column position**:
-   - **Even columns** (0, 2, 4, ...): 
-     - R[3] uses predictor from `n1[3]` (Green's interlaced bit)
-     - G[3] uses data from `n1[3]` (local bit)
-     - B[3] uses predictor from `n1[3]`
-   - **Odd columns** (1, 3, 5, ...):
-     - R[3] uses data from `n0[3]` (local bit)
-     - G[3] uses data from `n1[3]` (local bit)
-     - B[3] uses data from `n2[3]` (local bit)
+   Bit 3 of every nibble is always used directly as the MSB of its respective color channel; no cross-nibble prediction or column-position dependency:
+   - R[3] = `n0[3]`
+   - G[3] = `n1[3]`
+   - B[3] = `n2[3]`
 
-   This interlacing scheme compresses data by sharing/predicting MSBs across neighboring pixels.
-
-3. **Final RGB Value** (4 bits per channel):
+3. **Final RGB Value** (4 bits per channel, expanded to 8-bit):
 
    ```
-   R = ((n0 & 0x7) | (predictor_or_local << 3)) * 16  ->  [0, 240] in 8-bit (4-bit -> 8-bit expansion)
-   G = ((n1 & 0x7) | (n1[3] << 3)) * 16               ->  [0, 240] in 8-bit (4-bit -> 8-bit expansion)
-   B = ((n2 & 0x7) | (predictor_or_local << 3)) * 16  ->  [0, 240] in 8-bit (4-bit -> 8-bit expansion)
+   R = n0 * 16  ->  [0, 240] in 8-bit (4-bit -> 8-bit expansion)
+   G = n1 * 16  ->  [0, 240] in 8-bit (4-bit -> 8-bit expansion)
+   B = n2 * 16  ->  [0, 240] in 8-bit (4-bit -> 8-bit expansion)
    ```
-
-   Note: The interlacing implementation may not be fully optimized for all display patterns.
 
 ## Frame Structure
 
@@ -149,7 +140,7 @@ A complete frame transmission follows this sequence:
 - **Display dimensions**: 176 × 208 pixels
 - **Color depth**: 12-bit RGB (4 bits per channel, 4,096 possible colors)
 - **Total pixels per frame**: 36,608
-- **Color encoding**: Interlaced nibble scheme (see Color Encoding section)
+- **Color encoding**: Direct nibble scheme (see Color Encoding section)
 
 ## Example: Reading a Frame
 
