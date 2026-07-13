@@ -114,13 +114,10 @@ static void decode_and_draw(const uint8_t *imdata, size_t imdata_len, int y_offs
 
     while (nibble_count - off >= 3)
     {
-        int n0 = nib[off + 0];
-        int n1 = nib[off + 1];
-        int n2 = nib[off + 2];
-
-        int r = n0 * 16;
-        int g = n1 * 16;
-        int b = n2 * 16;
+        // [0, 15] to [0, 240], 4b to 8b expansion.
+        int r = nib[off + 0] * 16;
+        int g = nib[off + 1] * 16;
+        int b = nib[off + 2] * 16;
 
         int cx = coli % WIDTH;
         int cy = y_offset + (coli / WIDTH);
