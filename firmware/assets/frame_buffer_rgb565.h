@@ -2,7 +2,7 @@
 #define FRAME_BUFFER_RGB565_H
 
 #ifndef _IMG_ASSET_SECTION
-#define _IMG_ASSET_SECTION ".data"
+#define _IMG_ASSET_SECTION ".rodata"
 #endif
 
 #define FRAME_WIDTH      640

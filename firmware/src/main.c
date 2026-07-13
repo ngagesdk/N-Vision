@@ -33,6 +33,8 @@
 
 struct dvi_inst dvi0;
 
+static uint16_t s_overlay_scanline_buffer[FRAME_WIDTH];
+
 void core1_main()
 {
     dvi_register_irqs_this_core(&dvi0, DMA_IRQ_0);
@@ -46,6 +48,8 @@ void core1_main()
 
 int main()
 {
+    const uint8_t *base_frame_bytes = (const uint8_t *)frame_buffer_rgb565;
+
     vreg_set_voltage(VREG_VSEL);
     sleep_ms(10);
     set_sys_clock_khz(DVI_TIMING.bit_clk_khz, true);
@@ -67,26 +71,45 @@ int main()
     // pointers when returned to us.
     while(true)
     {
-        uint disp_line = 0;
-
         update_display_buffer();
 
-        for (uint8_t curr_line = DISPLAY_OFFSET_Y; curr_line < (DISPLAY_OFFSET_Y + NGAGE_DISPLAY_HEIGHT); ++curr_line)
+        for (uint curr_line = 0; curr_line < FRAME_HEIGHT; ++curr_line)
         {
-            for (uint disp_pos = 0; disp_pos < NGAGE_BUFFER_WIDTH; ++disp_pos)
-            {
-                frame_buffer_rgb565[((curr_line * FRAME_WIDTH) * 2) + (DISPLAY_OFFSET_X + disp_pos)] =
-                    display_buffer_rgb565[(disp_line * NGAGE_BUFFER_WIDTH) + disp_pos];
-            }
-            disp_line++;
-        }
-        disp_line = 0;
+            uint16_t *scanline;
 
-        for (uint8_t curr_line = 0; curr_line < FRAME_HEIGHT; ++curr_line)
-        {
-            uint16_t* scanline = &((uint16_t*)frame_buffer_rgb565)[curr_line * FRAME_WIDTH];
+            if (curr_line >= DISPLAY_OFFSET_Y &&
+                curr_line < (DISPLAY_OFFSET_Y + NGAGE_DISPLAY_HEIGHT))
+            {
+                uint disp_line = curr_line - DISPLAY_OFFSET_Y;
+                uint32_t free_scanline_u32;
+
+                scanline = s_overlay_scanline_buffer;
+
+                memcpy(scanline,
+                       &base_frame_bytes[curr_line * FRAME_WIDTH * 2],
+                       FRAME_WIDTH * 2);
+
+                memcpy(((uint8_t *)scanline) + (DISPLAY_OFFSET_X * 2),
+                       &display_buffer_rgb565[disp_line * NGAGE_BUFFER_WIDTH],
+                       NGAGE_BUFFER_WIDTH);
+
+                // Reuse a single overlay scanline buffer safely by waiting
+                // until DVI has consumed it before rendering the next line.
+                queue_add_blocking_u32(&dvi0.q_colour_valid, &scanline);
+                do
+                {
+                    queue_remove_blocking_u32(&dvi0.q_colour_free, &free_scanline_u32);
+                }
+                while ((uint16_t *)free_scanline_u32 != scanline);
+
+                continue;
+            }
+            else
+            {
+                scanline = (uint16_t *)&((const uint16_t *)frame_buffer_rgb565)[curr_line * FRAME_WIDTH];
+            }
+
             queue_add_blocking_u32(&dvi0.q_colour_valid, &scanline);
-            while (queue_try_remove_u32(&dvi0.q_colour_free, &scanline));
         }
     }
 }

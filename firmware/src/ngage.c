@@ -39,9 +39,8 @@
 #define LCDLLClk         0x75u  // line-latch clock strobe  (LCDM = 0).
 #define LCDDISPClk       0x5Cu  // display pixel-clock strobe (LCDM = 0).
 
-// Nibble decode constants (see decoder.c for full explanation).
-#define NIB_DELTA_BIT    3    // LCDDa3 position within a low nibble.
-#define NIB_DATA_MASK    0x7  // bits 2-0: colour-data pins per nibble.
+// Nibble scale factor: each 4-bit nibble maps to an 8-bit channel value.
+#define NIB_SCALE        16   // nibble * 16 gives the 8-bit channel value.
 
 // Live RGB565 display buffer - single definition; extern-declared in
 // ngage.h.  Zero-initialised; filled continuously by update_display_buffer().
@@ -51,7 +50,7 @@ char display_buffer_rgb565[NGAGE_BUFFER_SIZE];
 static int s_state;
 static int s_index;
 static int s_target_data[4]; // row-address bytes collected after LCDLLClk.
-static int s_lcdm;            // LCDM mode signal (1=pixel-data, 0=command)
+static int s_lcdm;           // LCDM mode signal (1=pixel-data, 0=command)
 
 // Rolling 3-nibble pipeline (two nibbles per bus byte, three per pixel).
 static int s_nib[3];
@@ -59,11 +58,6 @@ static int s_nib_count;
 
 // Absolute pixel counter within the current DISPClk burst.
 static int s_coli;
-
-// Delta predictors for R, G, B MSB carry-over between pixels.
-static int s_last_r;
-static int s_last_g;
-static int s_last_b;
 
 /* ---------------------------------------------------------------------- *
  * write_pixel                                                            *
@@ -97,27 +91,16 @@ static void write_pixel(int x, int y, int r, int g, int b)
  *   n1 (low  nibble): [LCDDa3 | LCDDa2 | LCDDa1 | LCDDa0]                 *
  *   n2 (high nibble): same layout as n0                                   *
  *                                                                         *
- * LCDDa3 (bit 3 of every low nibble) is a 1-bit delta predictor for the   *
- * channel MSB; high nibbles always have data so their bit 3 is used as    *
- * the predictor value for the corresponding channel.                      *
+ * All 4 bits of each nibble are data; bit 3 is NOT a delta predictor.     *
+ * Each nibble value (0-15) is scaled directly to an 8-bit channel value.  *
  * ----------------------------------------------------------------------- */
 static void process_nibbles(int n0, int n1, int n2)
 {
     int r, g, b, cx, cy;
 
-    if (s_coli % 2 == 0)
-    {
-        s_last_g = n1 >> NIB_DELTA_BIT;
-    }
-    else
-    {
-        s_last_r = n0 >> NIB_DELTA_BIT;
-        s_last_b = n2 >> NIB_DELTA_BIT;
-    }
-
-    r = ((n0 & NIB_DATA_MASK) | (s_last_r << NIB_DELTA_BIT)) * 16;
-    g = ((n1 & NIB_DATA_MASK) | (s_last_g << NIB_DELTA_BIT)) * 16;
-    b = ((n2 & NIB_DATA_MASK) | (s_last_b << NIB_DELTA_BIT)) * 16;
+    r = n0 * NIB_SCALE;
+    g = n1 * NIB_SCALE;
+    b = n2 * NIB_SCALE;
 
     cx = s_coli % NGAGE_DISPLAY_WIDTH;
     cy = s_target_data[0] + (s_coli / NGAGE_DISPLAY_WIDTH);
@@ -173,9 +156,6 @@ static void process_byte(uint8_t b)
             s_index = 0;
             s_nib_count = 0;
             s_coli = 0;
-            s_last_r = 0;
-            s_last_g = 0;
-            s_last_b = 0;
         }
         else if (strobe == LCDDISPClk)
         {
