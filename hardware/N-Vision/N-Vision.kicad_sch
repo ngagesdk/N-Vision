@@ -4261,7 +4261,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "CONN_54722-0164_MOL"
+		(property "Footprint" "footprints:CONN_54722-0164_MOL"
 			(at 45.72 31.75 0)
 			(hide yes)
 			(show_name no)
@@ -4464,7 +4464,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "CON_555600168"
+		(property "Footprint" "footprints:CONN_55560-0168_MOL"
 			(at 71.12 31.75 0)
 			(hide yes)
 			(show_name no)
