@@ -90,7 +90,7 @@
 	(footprint "footprints:CONN_54722-0164_MOL"
 		(layer "F.Cu")
 		(uuid "ef131535-37de-48fa-aaf9-dde333577851")
-		(at 130 84)
+		(at 130 42.5)
 		(tags "547220164 ")
 		(property "Reference" "J1"
 			(at 0 0 0)
@@ -673,12 +673,12 @@
 	(footprint "footprints:FPC-16P-0.5mm"
 		(layer "B.Cu")
 		(uuid "8237aa21-24dd-41d4-aada-1c464a3d2b97")
-		(at 126.5 95.75)
+		(at 130 72.5)
 		(property "Reference" "J3"
 			(at 0 -2.25 180)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "7dbec9c6-d6b8-4ce4-908a-defe76d60e72")
+			(uuid "609b90d0-7971-4c39-a330-55e8154b50d9")
 			(effects
 				(font
 					(size 1 1)
@@ -691,7 +691,7 @@
 			(at 0 -1 180)
 			(unlocked yes)
 			(layer "B.Fab")
-			(uuid "d1fae493-69ff-4404-bb5c-6b9594212c40")
+			(uuid "d3d89d31-e168-4eb8-9b67-8f52799ff3de")
 			(effects
 				(font
 					(size 1 1)
@@ -704,7 +704,7 @@
 			(at 0 0 0)
 			(layer "B.Fab")
 			(hide yes)
-			(uuid "3b8804da-ad0e-48d0-8fbc-78cbbe53fcb2")
+			(uuid "a38e8ccf-f0d8-4db4-8edf-263d5a2f7872")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -716,7 +716,7 @@
 			(at 0 0 0)
 			(layer "B.Fab")
 			(hide yes)
-			(uuid "5a41301b-d620-4285-8e6b-a2373a815e0f")
+			(uuid "3d30da68-0a9e-4496-a264-a2ce3e23be96")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -728,29 +728,11 @@
 		(path "/f0164569-ea58-4d46-9ea9-80c8d6e34f2f")
 		(sheetname "/")
 		(sheetfile "N-Vision.kicad_sch")
-		(units
-			(unit
-				(name "A")
-				(pins "2" "6" "14" "15" "3" "4" "5" "7" "9" "11" "13" "12" "10" "8" "1"
-					"16"
-				)
-			)
-		)
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
-			(start -0.5 -2.25)
-			(end -0.5 1.05)
-			(stroke
-				(width 0.05)
-				(type default)
-			)
-			(layer "Edge.Cuts")
-			(uuid "eca50d29-e362-4b05-8bcb-5597e4fb5edc")
-		)
-		(fp_line
-			(start -0.3 1.25)
-			(end 7.8 1.25)
+			(start -4.25 -3.5)
+			(end -4.25 -0.2)
 			(stroke
 				(width 0.05)
 				(type default)
@@ -759,8 +741,18 @@
 			(uuid "b5567e6b-857b-4060-86e2-865f6f8d2593")
 		)
 		(fp_line
-			(start 8 -2.25)
-			(end 8 1.05)
+			(start -4.05 0)
+			(end 4.05 0)
+			(stroke
+				(width 0.05)
+				(type default)
+			)
+			(layer "Edge.Cuts")
+			(uuid "eca50d29-e362-4b05-8bcb-5597e4fb5edc")
+		)
+		(fp_line
+			(start 4.25 -3.5)
+			(end 4.25 -0.2)
 			(stroke
 				(width 0.05)
 				(type default)
@@ -769,20 +761,9 @@
 			(uuid "12b08539-4d53-4de8-9b70-97684d33b0aa")
 		)
 		(fp_arc
-			(start -0.3 1.25)
-			(mid -0.441421 1.191421)
-			(end -0.5 1.05)
-			(stroke
-				(width 0.05)
-				(type default)
-			)
-			(layer "Edge.Cuts")
-			(uuid "f481cb9a-5cf9-4e07-89ac-aec5b0d5e878")
-		)
-		(fp_arc
-			(start 8 1.05)
-			(mid 7.941421 1.191421)
-			(end 7.8 1.25)
+			(start -4.05 0)
+			(mid -4.191421 -0.058579)
+			(end -4.25 -0.2)
 			(stroke
 				(width 0.05)
 				(type default)
@@ -790,19 +771,30 @@
 			(layer "Edge.Cuts")
 			(uuid "ff89820c-53b8-4ce2-9cd8-3c85c6c2c050")
 		)
+		(fp_arc
+			(start 4.25 -0.2)
+			(mid 4.191421 -0.058579)
+			(end 4.05 0)
+			(stroke
+				(width 0.05)
+				(type default)
+			)
+			(layer "Edge.Cuts")
+			(uuid "f481cb9a-5cf9-4e07-89ac-aec5b0d5e878")
+		)
 		(fp_line
-			(start -0.5 -2.25)
-			(end -0.5 1.05)
+			(start -4.25 -3.5)
+			(end -4.25 -0.2)
 			(stroke
 				(width 0.05)
 				(type default)
 			)
 			(layer "User.1")
-			(uuid "5b9d4b77-ef5c-4e2e-86b8-c77e2acce6a0")
+			(uuid "b0945a7e-ddb7-46d3-9014-f4ed5522aa24")
 		)
 		(fp_line
-			(start -0.5 -2.25)
-			(end 8 -2.25)
+			(start -4.25 -3.5)
+			(end 4.25 -3.5)
 			(stroke
 				(width 0.05)
 				(type default)
@@ -811,8 +803,18 @@
 			(uuid "8972d2b7-20d8-4ce6-9ce5-3e9424342223")
 		)
 		(fp_line
-			(start -0.3 1.25)
-			(end 7.8 1.25)
+			(start -4.05 0)
+			(end 4.05 0)
+			(stroke
+				(width 0.05)
+				(type default)
+			)
+			(layer "User.1")
+			(uuid "5b9d4b77-ef5c-4e2e-86b8-c77e2acce6a0")
+		)
+		(fp_line
+			(start 4.25 -3.5)
+			(end 4.25 -0.2)
 			(stroke
 				(width 0.05)
 				(type default)
@@ -820,31 +822,10 @@
 			(layer "User.1")
 			(uuid "7aeb2d08-521d-4488-9dad-7c5775e163e9")
 		)
-		(fp_line
-			(start 8 -2.25)
-			(end 8 1.05)
-			(stroke
-				(width 0.05)
-				(type default)
-			)
-			(layer "User.1")
-			(uuid "b0945a7e-ddb7-46d3-9014-f4ed5522aa24")
-		)
 		(fp_arc
-			(start -0.3 1.25)
-			(mid -0.441421 1.191421)
-			(end -0.5 1.05)
-			(stroke
-				(width 0.05)
-				(type default)
-			)
-			(layer "User.1")
-			(uuid "21e119cb-d224-4c40-b6ed-28f391e65c5d")
-		)
-		(fp_arc
-			(start 8 1.05)
-			(mid 7.941421 1.191421)
-			(end 7.8 1.25)
+			(start -4.05 0)
+			(mid -4.191421 -0.058579)
+			(end -4.25 -0.2)
 			(stroke
 				(width 0.05)
 				(type default)
@@ -852,8 +833,19 @@
 			(layer "User.1")
 			(uuid "9d408cd7-6741-42a1-9624-bc5825dc4a41")
 		)
+		(fp_arc
+			(start 4.25 -0.2)
+			(mid 4.191421 -0.058579)
+			(end 4.05 0)
+			(stroke
+				(width 0.05)
+				(type default)
+			)
+			(layer "User.1")
+			(uuid "21e119cb-d224-4c40-b6ed-28f391e65c5d")
+		)
 		(pad "1" smd rect
-			(at 0 0 270)
+			(at -3.75 -1.25 270)
 			(size 2.5 0.35)
 			(layers "B.Cu" "B.Mask" "B.Paste")
 			(net "GND")
@@ -862,7 +854,7 @@
 			(uuid "212ad39e-d613-452d-828c-eea49de81fdf")
 		)
 		(pad "2" smd rect
-			(at 0.5 0 270)
+			(at -3.25 -1.25 270)
 			(size 2.5 0.35)
 			(layers "B.Cu" "B.Mask" "B.Paste")
 			(net "/Unused 1")
@@ -871,7 +863,7 @@
 			(uuid "65ec0fd6-187c-4160-af72-f3c34dc4c7f1")
 		)
 		(pad "3" smd rect
-			(at 1 0 270)
+			(at -2.75 -1.25 270)
 			(size 2.5 0.35)
 			(layers "B.Cu" "B.Mask" "B.Paste")
 			(net "/LCDM")
@@ -880,7 +872,7 @@
 			(uuid "6e8f2dfe-81a0-4f4e-99ac-6d08019e8024")
 		)
 		(pad "4" smd rect
-			(at 1.5 0 270)
+			(at -2.25 -1.25 270)
 			(size 2.5 0.35)
 			(layers "B.Cu" "B.Mask" "B.Paste")
 			(net "/LCDDISPClk")
@@ -889,7 +881,7 @@
 			(uuid "5e9e3377-a71a-4aff-a155-bfaa8425c1a6")
 		)
 		(pad "5" smd rect
-			(at 2 0 270)
+			(at -1.75 -1.25 270)
 			(size 2.5 0.35)
 			(layers "B.Cu" "B.Mask" "B.Paste")
 			(net "/LCDDa0")
@@ -898,7 +890,7 @@
 			(uuid "d7553f05-ef58-4b0f-aec1-3f021954bf5f")
 		)
 		(pad "6" smd rect
-			(at 2.5 0 270)
+			(at -1.25 -1.25 270)
 			(size 2.5 0.35)
 			(layers "B.Cu" "B.Mask" "B.Paste")
 			(net "/Unused 2")
@@ -907,7 +899,7 @@
 			(uuid "3ec86741-d798-4920-84fc-810b9674e805")
 		)
 		(pad "7" smd rect
-			(at 3 0 270)
+			(at -0.75 -1.25 270)
 			(size 2.5 0.35)
 			(layers "B.Cu" "B.Mask" "B.Paste")
 			(net "/LCDDa1")
@@ -916,7 +908,7 @@
 			(uuid "53efe9c8-3538-4ac9-9221-a1890cbc56b6")
 		)
 		(pad "8" smd rect
-			(at 3.5 0 270)
+			(at -0.25 -1.25 270)
 			(size 2.5 0.35)
 			(layers "B.Cu" "B.Mask" "B.Paste")
 			(net "/LCDDa7")
@@ -925,7 +917,7 @@
 			(uuid "d4516690-26ef-4bed-9879-075d609f5962")
 		)
 		(pad "9" smd rect
-			(at 4 0 270)
+			(at 0.25 -1.25 270)
 			(size 2.5 0.35)
 			(layers "B.Cu" "B.Mask" "B.Paste")
 			(net "/LCDDa2")
@@ -934,7 +926,7 @@
 			(uuid "d5c0883d-85b7-4104-96fb-93e019b74367")
 		)
 		(pad "10" smd rect
-			(at 4.5 0 270)
+			(at 0.75 -1.25 270)
 			(size 2.5 0.35)
 			(layers "B.Cu" "B.Mask" "B.Paste")
 			(net "/LCDDa6")
@@ -943,7 +935,7 @@
 			(uuid "f0e1b56e-7b74-4aa5-81e3-7ecc78f50d50")
 		)
 		(pad "11" smd rect
-			(at 5 0 270)
+			(at 1.25 -1.25 270)
 			(size 2.5 0.35)
 			(layers "B.Cu" "B.Mask" "B.Paste")
 			(net "/LCDDa3")
@@ -952,7 +944,7 @@
 			(uuid "fc166f2a-5e87-477d-a524-ce952090f2ec")
 		)
 		(pad "12" smd rect
-			(at 5.5 0 270)
+			(at 1.75 -1.25 270)
 			(size 2.5 0.35)
 			(layers "B.Cu" "B.Mask" "B.Paste")
 			(net "/LCDDa5")
@@ -961,7 +953,7 @@
 			(uuid "c78761d0-3b5c-4fc7-870c-f6ec20a12f87")
 		)
 		(pad "13" smd rect
-			(at 6 0 270)
+			(at 2.25 -1.25 270)
 			(size 2.5 0.35)
 			(layers "B.Cu" "B.Mask" "B.Paste")
 			(net "/LCDDa4")
@@ -970,7 +962,7 @@
 			(uuid "58d91892-7c68-489f-9894-11bcb5cccec3")
 		)
 		(pad "14" smd rect
-			(at 6.5 0 270)
+			(at 2.75 -1.25 270)
 			(size 2.5 0.35)
 			(layers "B.Cu" "B.Mask" "B.Paste")
 			(net "/Unused 3")
@@ -979,7 +971,7 @@
 			(uuid "7171da89-5fa6-4af3-8b2c-7cf2b709b470")
 		)
 		(pad "15" smd rect
-			(at 7 0 270)
+			(at 3.25 -1.25 270)
 			(size 2.5 0.35)
 			(layers "B.Cu" "B.Mask" "B.Paste")
 			(net "/Unused 4")
@@ -988,7 +980,7 @@
 			(uuid "daf00a71-0b3b-4e34-839e-cca54b93d098")
 		)
 		(pad "16" smd rect
-			(at 7.5 0 270)
+			(at 3.75 -1.25 270)
 			(size 2.5 0.35)
 			(layers "B.Cu" "B.Mask" "B.Paste")
 			(net "GND")
@@ -1001,7 +993,7 @@
 	(footprint "footprints:CONN_55560-0168_MOL"
 		(layer "B.Cu")
 		(uuid "fd0e03b8-fb70-49a8-8ec7-57baf13d06c6")
-		(at 130 84)
+		(at 130 42.5)
 		(tags "555600168 ")
 		(property "Reference" "J2"
 			(at 0 5.08 180)
